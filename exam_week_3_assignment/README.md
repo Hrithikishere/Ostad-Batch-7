@@ -1,6 +1,6 @@
 # exam_week_3_assignment
 
-Ostad exam week 3 assignment
+A new Flutter project.
 
 ## Getting Started
 
