@@ -19,6 +19,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController _quantityController = TextEditingController();
 
   @override
+  void dispose() {
+    _productNameController.dispose();
+    _productCodeController.dispose();
+    _productImageController.dispose();
+    _unitPriceController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -32,27 +42,57 @@ class _AddProductScreenState extends State<AddProductScreen> {
             children: [
               TextFormField(
                 controller: _productNameController,
-                decoration: appInputStyle('Product Name'),
+                decoration: appInputStyle('Enter Product Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _productCodeController,
-                decoration: appInputStyle('Product Code'),
+                decoration: appInputStyle('Enter Product Code'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product code';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _productImageController,
-                decoration: appInputStyle('Product Image'),
+                decoration: appInputStyle('Enter Product Image Link'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product image link';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _unitPriceController,
-                decoration: appInputStyle('Unit Price'),
+                decoration: appInputStyle('Enter Unit Price'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter unit price';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _quantityController,
-                decoration: appInputStyle('Quantity'),
+                decoration: appInputStyle('Enter Quantity'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter quantity';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -60,26 +100,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Product product = Product(
-                      id: '',
-                      productName: _productNameController.text,
-                      productCode: _productCodeController.text,
-                      productImage: _productImageController.text,
-                      unitPrice: double.parse(_unitPriceController.text),
-                      quantity: int.parse(_quantityController.text),
-                      totalPrice: double.parse(_unitPriceController.text) *
-                          int.parse(_quantityController.text),
-                      createdDate: DateTime.now(),
-                    );
-                    ApiSettings.addProduct(product).then((value) {
-                      if (value) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Product added successfully'),
-                          ),
-                        );
-                      }
-                    });
+                    addProuct(context);
                   },
                   style: appButtonStyle(),
                   child: const Text(
@@ -93,5 +114,47 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
       ),
     );
+  }
+
+  void addProuct(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      Product product = Product(
+        productName: _productNameController.text,
+        productCode: _productCodeController.text,
+        productImage: _productImageController.text,
+        unitPrice: double.parse(_unitPriceController.text),
+        quantity: int.parse(_quantityController.text),
+        totalPrice: double.parse(_unitPriceController.text) *
+            int.parse(_quantityController.text),
+        createdDate: DateTime.now(),
+        id: '',
+      );
+
+      ApiSettings.addProduct(product).then((value) {
+        if (value) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Product added successfully!\nPlease refresh the home page to see the changes'),
+            ),
+          );
+          clearForm();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Product add failed'),
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  void clearForm() {
+    _productNameController.clear();
+    _productCodeController.clear();
+    _productImageController.clear();
+    _unitPriceController.clear();
+    _quantityController.clear();
   }
 }

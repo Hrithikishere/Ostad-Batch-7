@@ -93,6 +93,7 @@ class ProductItem extends StatelessWidget {
                 children: [
                   Text(
                     '\$${product.totalPrice}',
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
@@ -129,7 +130,8 @@ class ProductItem extends StatelessWidget {
                           // }), (route) => false);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Product Deleted Successfully'),
+                              content: Text(
+                                  'Product Deleted Successfully! Refreshing...'),
                             ),
                           );
                           onDelete!();

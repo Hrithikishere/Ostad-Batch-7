@@ -32,6 +32,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final TextEditingController _quantityController = TextEditingController();
 
   @override
+  void dispose() {
+    _productNameController.dispose();
+    _productCodeController.dispose();
+    _productImageController.dispose();
+    _unitPriceController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     product = ApiSettings.products
@@ -47,7 +57,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Product'),
+        title: const Text('Edit Product'),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -58,26 +68,56 @@ class _EditProductScreenState extends State<EditProductScreen> {
               TextFormField(
                 controller: _productNameController,
                 decoration: appInputStyle('Product Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _productCodeController,
                 decoration: appInputStyle('Product Code'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product code';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _productImageController,
                 decoration: appInputStyle('Product Image'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter product image link';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _unitPriceController,
                 decoration: appInputStyle('Unit Price'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter unit price';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _quantityController,
                 decoration: appInputStyle('Quantity'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter quantity';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -85,21 +125,38 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Product product = Product(
-                      id: widget.productId,
-                      productName: _productNameController.text,
-                      productCode: _productCodeController.text,
-                      productImage: _productImageController.text,
-                      unitPrice: double.parse(_unitPriceController.text),
-                      quantity: int.parse(_quantityController.text),
-                      totalPrice: double.parse(_unitPriceController.text) *
-                          int.parse(_quantityController.text),
-                      createdDate: DateTime.now(),
-                    );
+                    if (_formKey.currentState!.validate()) {
+                      Product product = Product(
+                        id: widget.productId,
+                        productName: _productNameController.text,
+                        productCode: _productCodeController.text,
+                        productImage: _productImageController.text,
+                        unitPrice: double.parse(_unitPriceController.text),
+                        quantity: int.parse(_quantityController.text),
+                        totalPrice: double.parse(_unitPriceController.text) *
+                            int.parse(_quantityController.text),
+                        createdDate: DateTime.now(),
+                      );
 
-                    bool response = ApiSettings.updateProduct(product) as bool;
-                    if (response) {
-                      Navigator.pop(context);
+                      ApiSettings.updateProduct(product).then((response) {
+                        if (response) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Product updated successfully!\nPlease refresh the page to see the changes'),
+                            ),
+                          );
+                          Future.delayed(const Duration(milliseconds: 500), () {
+                            Navigator.pop(context);
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Product update failed'),
+                            ),
+                          );
+                        }
+                      });
                     }
                   },
                   style: appButtonStyle(),
