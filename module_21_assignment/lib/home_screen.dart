@@ -24,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _getUserLocation();
   }
 
-  // 1. Fetch current location and update the map
   void _getUserLocation() async {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
@@ -40,11 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentLocation, 15));
 
-    // Start fetching location every 10 seconds
     _timer = Timer.periodic(Duration(seconds: 10), (Timer t) => _updateLocation());
   }
 
-  // 2. Update location every 10 seconds and add polyline
   void _updateLocation() async {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
